@@ -20,21 +20,15 @@ public class Main {
 	}
 
 
-	public static void generateNames() {
+	private static void generateNames() {
 		try (DriverFactory driverFactory = new DriverFactory()){
 			
 			WebDriver driver = driverFactory.getChromeDriver();
+			
 			driver.get("https://pt.fakenamegenerator.com");
-			
-			Select genderSelector = new Select(driver.findElement(By.id("gen")));
-			genderSelector.selectByValue("random");
-			
-			Select nameSelector = new Select(driver.findElement(By.id("n")));
-			nameSelector.selectByValue("br");
-			
-			Select countrySelector = new Select(driver.findElement(By.id("c")));
-			countrySelector.selectByValue("br");
-			
+			new Select(driver.findElement(By.id("gen"))).selectByValue("random");
+			new Select(driver.findElement(By.id("n"))).selectByValue("br");
+			new Select(driver.findElement(By.id("c"))).selectByValue("br");
 			
 			List<Person> people = new ArrayList<>();
 			
