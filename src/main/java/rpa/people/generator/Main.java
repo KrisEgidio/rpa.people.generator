@@ -1,8 +1,13 @@
 package rpa.people.generator;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
@@ -15,12 +20,16 @@ public class Main {
 	public static void main(String[] args) {
 
 		System.setProperty("webdriver.chrome.driver", "resources\\chromedriver.exe");
-		generateNames();
+		List<Person> personList = generateNames();
+		createOutputExcel(personList);
 		
 	}
 
 
-	private static void generateNames() {
+	private static List<Person> generateNames() {
+		
+		List<Person> personList = new ArrayList<>();
+		
 		try (DriverFactory driverFactory = new DriverFactory()){
 			
 			WebDriver driver = driverFactory.getChromeDriver();
@@ -29,8 +38,6 @@ public class Main {
 			new Select(driver.findElement(By.id("gen"))).selectByValue("random");
 			new Select(driver.findElement(By.id("n"))).selectByValue("br");
 			new Select(driver.findElement(By.id("c"))).selectByValue("br");
-			
-			List<Person> people = new ArrayList<>();
 			
 			for(int counter = 0; counter <= 10; counter++) {
 				
@@ -50,11 +57,55 @@ public class Main {
 		
 			
 				Person person = new Person(fullName, email, "", zipCode, address, country,uf, city);
-				people.add(person);
-				System.out.println("name: " + person.getFullName() + " email: " + person.getEmail() );
+				personList.add(person);
+				
 			}
 			
+			return personList;
 		
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		return personList;
+	}
+
+	
+	
+	private static void createOutputExcel(List<Person> personList) {
+		
+		String outputFile = "C:\\Users\\Kris\\Desktop\\rpa.people.generator.files\\people.xlsx";
+		
+		try(Workbook workbook = new XSSFWorkbook(); FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+			
+			Sheet sheet = workbook.createSheet("people");
+			Row headerRow = sheet.createRow(0);
+			headerRow.createCell(0).setCellValue("fullName");
+			headerRow.createCell(1).setCellValue("city");
+			headerRow.createCell(2).setCellValue("country");
+			headerRow.createCell(3).setCellValue("email");
+			headerRow.createCell(4).setCellValue("address");
+			headerRow.createCell(5).setCellValue("gender");
+			headerRow.createCell(6).setCellValue("uf");
+			headerRow.createCell(7).setCellValue("zipCode");
+			
+			int line = 1;
+			for(Person person : personList) {
+				Row row = sheet.createRow(line);
+				row.createCell(0).setCellValue(person.getFullName());
+				row.createCell(1).setCellValue(person.getCity());
+				row.createCell(2).setCellValue(person.getCountry());
+				row.createCell(3).setCellValue(person.getEmail());
+				row.createCell(4).setCellValue(person.getAddress());
+				row.createCell(5).setCellValue(person.getGender());
+				row.createCell(6).setCellValue(person.getUf());
+				row.createCell(7).setCellValue(person.getZipCode());
+				
+				line++;
+			}
+			
+			workbook.write(outputStream);
+			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
