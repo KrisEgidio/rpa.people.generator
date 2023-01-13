@@ -22,7 +22,6 @@ public class Main {
 		System.setProperty("webdriver.chrome.driver", "resources\\chromedriver.exe");
 		List<Person> personList = generateNames();
 		createOutputExcel(personList);
-		
 	}
 
 
@@ -110,6 +109,5 @@ public class Main {
 			System.out.println(e.getMessage());
 		}
 	}
-
 
 }
