@@ -73,7 +73,7 @@ public class Main {
 	
 	private static void createOutputExcel(List<Person> personList) {
 		
-		String outputFile = "C:\\Users\\Kris\\Desktop\\rpa.people.generator.files\\people.xlsx";
+		String outputFile = "C:\\Users\\Kris\\Desktop\\rpa.people.generator.files\\1.entrada\\people.xlsx";
 		
 		try(Workbook workbook = new XSSFWorkbook(); FileOutputStream outputStream = new FileOutputStream(outputFile)) {
 			
