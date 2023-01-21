@@ -19,7 +19,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		System.setProperty("webdriver.chrome.driver", "resources\\chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", "C:\\Users\\Kris\\Desktop\\Deploy\\chromedriver\\chromedriver.exe");
 		List<Person> personList = generateNames();
 		createOutputExcel(personList);
 	}
