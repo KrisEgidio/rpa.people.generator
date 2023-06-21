@@ -14,24 +14,27 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
 
-import rpa.people.generator.browser.DriverFactory;
+import lib.commons.browser.DriverFactory;
+import lib.commons.notification.TelegramNotification;
 import rpa.people.generator.model.Person;
 import rpa.people.generator.model.RobotStatistics;
 
 public class Main {
 
 	public static void main(String[] args) {
-	
+
 		System.setProperty("webdriver.chrome.driver",
 				"C:\\Users\\Kris\\Desktop\\Deploy\\chromedriver\\chromedriver.exe");
-		
+
 		RobotStatistics.initializeItems();
 		RobotStatistics.startDateTime = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(LocalDateTime.now());
-		
+
 		List<Person> personList = generateNames();
 		createOutputExcel(personList);
-		
+
 		RobotStatistics.endDateTime = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(LocalDateTime.now());
+		TelegramNotification.sendMessage(finalMessage());
+
 	}
 
 	private static List<Person> generateNames() {
@@ -67,7 +70,7 @@ public class Main {
 
 				Person person = new Person(fullName, email, "", zipCode, address, country, uf, city);
 				personList.add(person);
-				
+
 				RobotStatistics.inputCount++;
 
 			}
@@ -77,6 +80,7 @@ public class Main {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			RobotStatistics.executionStatus = "ERROR";
+			TelegramNotification.sendMessage(errorMessage(e.getMessage()));
 		}
 
 		return personList;
@@ -101,9 +105,9 @@ public class Main {
 
 			int line = 1;
 			for (Person person : personList) {
-				
+
 				try {
-					
+
 					Row row = sheet.createRow(line);
 					row.createCell(0).setCellValue(person.getFullName());
 					row.createCell(1).setCellValue(person.getCity());
@@ -115,16 +119,16 @@ public class Main {
 					row.createCell(7).setCellValue(person.getZipCode());
 
 					line++;
-					
+
 					RobotStatistics.outputCount++;
 					RobotStatistics.successOutput++;
-					
+
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					RobotStatistics.outputCount++;
 					RobotStatistics.errorOutput++;
 				}
-				
+
 			}
 
 			workbook.write(outputStream);
@@ -132,39 +136,36 @@ public class Main {
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
+			
+			TelegramNotification.sendMessage(errorMessage(e.getMessage()));
+			
 			RobotStatistics.successOutput = 0;
 			RobotStatistics.outputCount = 0;
 			RobotStatistics.warnOutput = 0;
 			RobotStatistics.executionStatus = "ERROR";
 		}
 	}
-	
+
 	public static String errorMessage(String exceptionMessage) {
-		StringBuilder message = new StringBuilder()
-				.append("BREAK_LINE<b>RPA - People.generator - EXCEPTION</b>")
-				.append("BREAK_LINE")
-				.append("BREAK_LINE")
-				.append(exceptionMessage);
-		
+		StringBuilder message = new StringBuilder().append("BREAK_LINE<b>RPA - People.generator - EXCEPTION</b>")
+				.append("BREAK_LINE").append("BREAK_LINE").append(exceptionMessage);
+
 		return message.toString();
 	}
-	
+
 	public static String finalMessage() {
 		StringBuilder message = new StringBuilder()
 				.append("BREAK_LINE<b>RPA - People.generator - " + RobotStatistics.executionStatus + "</b>")
 				.append("BREAK_LINE")
 				.append("BREAK_LINE<b>Quantidade de registros entrada:</b> " + RobotStatistics.inputCount)
 				.append("BREAK_LINE<b>Quantidade de registros saída:</b> " + RobotStatistics.outputCount)
-				.append("BREAK_LINE")
-				.append("BREAK_LINE<b>Saídas com sucesso:</b> " + RobotStatistics.successOutput)
+				.append("BREAK_LINE").append("BREAK_LINE<b>Saídas com sucesso:</b> " + RobotStatistics.successOutput)
 				.append("BREAK_LINE<b>Saídas com erro:</b> " + RobotStatistics.errorOutput)
-				.append("BREAK_LINE<b>Saídas com alerta:</b> " + RobotStatistics.warnOutput)
-				.append("BREAK_LINE")
+				.append("BREAK_LINE<b>Saídas com alerta:</b> " + RobotStatistics.warnOutput).append("BREAK_LINE")
 				.append("BREAK_LINE<b>Início de execução: </b>" + RobotStatistics.startDateTime)
 				.append("BREAK_LINE<b>Fim de execução: </b>" + RobotStatistics.endDateTime);
-		
+
 		return message.toString();
 	}
-
 
 }
